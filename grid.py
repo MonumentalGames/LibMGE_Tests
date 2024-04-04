@@ -1,83 +1,61 @@
-try:
-    import MGE.MGE_019 as MGE
-except:
-    import MGE
+import MGE
 
-line = MGE.Object2D([100, 100], 0, [100, 1])
-Material = MGE.Material(color=(60, 60, 66))
-line.set_material(Material)
-text_location = MGE.ObjectText((0, 0), 15, "0x | 0y", "verdana")
+MGE.init()
 
-speed = 1
+window = MGE.Window()
+internal_camera = MGE.Camera()
 
-def logic_base():
-    if MGE.Program.event.type == MGE.Program.pygame.QUIT:
-        Program.loop = False
+text_location = MGE.ObjectText((10, 10), 0, 15, "0x | 0y")
+text_location._text_render_type = 1
 
-    MGE.Program.set_caption(f"Grid-MGE | FPS:{int(MGE.Program.get_fps())}")
-    MGE.Program.update(False, False)
+color = MGE.Color((60, 60, 66))
 
-def logic():
-    logic_base()
+speed = 10
 
-    if MGE.Keyboard.keyboard("w"):
-        Program.internal_camera.set_location([Program.internal_camera.get_location()[0], Program.internal_camera.get_location()[1] + speed])
+while True:
+    MGE.update()
+    window.update(True)
 
-    if MGE.Keyboard.keyboard("a"):
-        Program.internal_camera.set_location([Program.internal_camera.get_location()[0] + speed, Program.internal_camera.get_location()[1]])
+    window.title = f"LibMGE Grid | FPS: {int(window.fps)}"
 
-    if MGE.Keyboard.keyboard("s"):
-        Program.internal_camera.set_location([Program.internal_camera.get_location()[0], Program.internal_camera.get_location()[1] - speed])
+    if MGE.QuitEvent() or MGE.keyboard(MGE.KeyboardButton.F1):
+        exit()
 
-    if MGE.Keyboard.keyboard("d"):
-        Program.internal_camera.set_location([Program.internal_camera.get_location()[0] - speed, Program.internal_camera.get_location()[1]])
+    if MGE.keyboard(MGE.KeyboardButton.KeyW):
+        internal_camera.motionTimeStart(2)
+    if MGE.keyboard(MGE.KeyboardButton.KeyW, True):
+        internal_camera.motion(2, speed)
 
-def draw():
-    MGE.Program.screen.screen.fill((40, 40, 40))
+    if MGE.keyboard(MGE.KeyboardButton.KeyA):
+        internal_camera.motionTimeStart(1)
+    if MGE.keyboard(MGE.KeyboardButton.KeyA, True):
+        internal_camera.motion(1, speed)
 
-    screen_size = MGE.Program.Temp.Resolution
-    camera_location = Program.internal_camera.get_location()
+    if MGE.keyboard(MGE.KeyboardButton.KeyS):
+        internal_camera.motionTimeStart(2)
+    if MGE.keyboard(MGE.KeyboardButton.KeyS, True):
+        internal_camera.motion(2, -speed)
 
-    for n in range(int(screen_size[1] / 50) + 2):
-        loc = [camera_location[0] * -1, 50 * int(camera_location[1] * -1 / 50) + 50 * n]
-        if loc[1] < screen_size[1] + camera_location[1] * -1:
-            line.set_localization(loc)
-            line.set_size([screen_size[0], 1])
-            line.draw_object(MGE.Program.screen, Program.internal_camera)
+    if MGE.keyboard(MGE.KeyboardButton.KeyD):
+        internal_camera.motionTimeStart(1)
+    if MGE.keyboard(MGE.KeyboardButton.KeyD, True):
+        internal_camera.motion(1, -speed)
 
-    for n in range(int(screen_size[0] / 50) + 2):
-        loc = [50 * int(camera_location[0] * -1 / 50) + 50 * n, camera_location[1] * -1]
-        if loc[0] < screen_size[0] + camera_location[0] * -1:
-            line.set_localization(loc)
-            line.set_size([1, screen_size[1]])
-            line.draw_object(MGE.Program.screen, Program.internal_camera)
+    window.clear(color=(40, 40, 40, 255))
 
-    text_location.set_text(f"Camera : {Program.internal_camera.get_location()[0] * -1}x | {Program.internal_camera.get_location()[1]}y")
-    text_location.set_localization([0, 0])
-    text_location.draw_object(MGE.Program.screen, True)
+    if "Line3996" not in window.draw_objects:
+        window.draw_objects.append("Line3996")
+        window_size, camera_location = window.logicalResolution, internal_camera.location
 
-class Program:
-    loop = False
+        for n in range(window_size[1] // 50 + 2):
+            start = [(camera_location[0] * -1) + camera_location[0], (50 * int(camera_location[1] * -1 // 50) + 50 * n) + camera_location[1]]
+            end = [start[0] + window_size[0], start[1]]
+            window.drawLine(start, end, 1, color)
 
-    internal_camera = MGE.Camera()
+        for n in range(window_size[0] // 50 + 2):
+            start = [(50 * int(camera_location[0] * -1 // 50) + 50 * n) + camera_location[0], (camera_location[1] * -1) + camera_location[1]]
+            end = [start[0], start[1] + window_size[1]]
+            window.drawLine(start, end, 1, color)
 
-    @staticmethod
-    def start():
-        try:
-            MGE.Program.screen.set_size(1280, 720, "RESIZABLE")
-            MGE.Program.set_clock(240)
-            Program.android = True
-        except:
-            pass
-        else:
-            Program.loop = True
-            Program.program_loop()
-
-    @staticmethod
-    def program_loop():
-        while Program.loop:
-            logic()
-            if MGE.Program.event or MGE.keyboard("all"):
-                draw()
-
-Program.start()
+    text_location.text = f"{internal_camera.location[0] * -1}x | {internal_camera.location[1]}y"
+    text_location.draw_object(window)

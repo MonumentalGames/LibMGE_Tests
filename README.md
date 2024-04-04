@@ -1,7 +1,4 @@
-# MGE_Tests
-
-MGE Repository - https://github.com/lucas224112/MGE
-
-MGE Beta Versions: ["0.1.9", "0.1.12", "0.1.27"]
-
-test scripts: "Grid 1.0" | MGE Version: (0.1.9 - 0.1.27)
+# LibMGE Tests
+MGE 1.0.0 or higher
+## Dependencies
+- [LibMGE](https://github.com/MonumentalGames/LibMGE)
